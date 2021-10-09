@@ -61,25 +61,6 @@
             return item;
         }
 
-       // let options = {
-       //     root:null,
-      //      rootMargin:'0px',
-      //      threshold:1.0
-      //  };
-
-       /* let callback = (entries,obeserver) => {
-            entries.forEach(entry => {
-                if(entry.target.id === 'listEnd'){
-                    if(entry.isIntersecting && !appending){
-                        appending = true;
-                        setTimeout(()=>{
-                            addItems();
-                        },3000);
-                    }
-                }
-            })
-        }*/
-
         window.onscroll = function(ev) {
     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
         setTimeout(()=>{
