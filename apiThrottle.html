@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Movie Api</title>
+    <style>
+        .spec{
+            font-family: 'Architects Daughter', cursive;
+            font-family: 'Balsamiq Sans', cursive;
+        }
+        .moveLeft{
+            margin-left: 300px;
+        }
+        .fontSize{
+            font-size: 18px;
+        }
+        .myImage{
+            width: 250px;
+            height: 250px;
+        }
+        .column{
+            width: 250px;
+            height: fit-content;
+        }
+        .rows{
+            display: grid;
+            grid-template-columns: auto auto auto auto;
+            row-gap: 5px;
+        }
+        .space{
+            margin-left: -10px;
+        }
+        .autoDiv{
+            margin: auto;
+        }
+        .centerSpace{
+            margin-left: 450px;
+        }
+        .recomImg{
+            width: 150px;
+            height: 50px;
+            
+        }
+        .box{
+            height: fit-content;
+            width: 250px;
+            padding: 2px;
+            border: 2px solid #dc3545;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="bg-white w-50 moveLeft"><br/>
+        <h2 class="text-center text-danger"><b>Search for a movie!</b></h1><br/>
+        <h4 class="text-center colrs"><small>Please enter the movie name.</h4><br/>
+         <div class="container border top " style="width: 75%;">
+            <form id="movieForm">
+                <div class="col mb-3"><br/>
+                    <label for="searchBox" class="fontSize">Movie Title:</label>
+                    <div class="input-group">
+                      
+                      <input type="text" class="form-control " id="searchBox" placeholder="Enter movie" >
+                      
+                    </div>
+                  </div>
+                  <div class="col  text-center">
+                    <button class="btn btn-danger btn-default btn-block fontSize" id="search">Search</button><br/>
+                   
+                </div>
+            </form><br/>
+        </div><br/>
+    </div>
+    <div class="container rows" id="results">
+    </div></br>
+    <div class="container autoDiv centerSpace" id="container" ></div><br/>
+    <script>
+        window.addEventListener("load",function() {
+            var inputBox = document.getElementById('searchBox');
+            
+            inputBox.addEventListener('input',handleSearch)//adding an event to call function handleSearch on input.
+        })
+
+        //Function handleSearch() calls the throttle function with a delay of 4000 milliseconds.
+        function handleSearch(){
+            var searchBox = document.getElementById('searchBox');
+            throttleFunction(getMovieDetails({movieName: searchBox.value}),4000);
+        }
+        
+        let throttleTimer;//Initializing a variable to detect if the function has been called within the specified time
+
+        function throttleFunction(func,delay){
+            if(throttleTimer){//checking if the function has been called. If yes,pause the throttle function
+                return;
+            }
+            
+            throttleTimer = true;//setting throttleTimer to true after if condition so that it runs only once.
+            setTimeout(() => {
+                func({movieName: ''});
+                throttleTimer = false;
+            }, delay);//runs the func within the specified time
+
+        }
+        
+
+        //fetching data from API omdbapi.com using personal API key with the help of &s parameters
+
+        function getMovieDetails({movieName = ''}){
+            event.preventDefault()
+            console.log('movieName =>',movieName)
+            if(movieName !== ''){
+                fetch(`http://www.omdbapi.com/?i=tt3896198&apikey=33c2f750&s=${movieName}`)
+                .then(function(res){
+                    return res.json();
+                })
+                .then(function(res){
+                    let array = res.Search;
+                    console.log(array)
+                    let div = document.getElementById("results");
+                    div.innerHTML = "";
+                   for(let i = 0; i<array.length; i++){
+                       console.log(array[i])
+                    
+                       let card = createResults(array[i]);//calling createResults() function to create the results each time we send a request to fetch api
+                       console.log(card)
+                        div.append(card)
+                        displayMovie(array[i]);//calling displayMovie() function
+                   }
+                    
+                })
+                .catch(function(err){
+                    invalidMovie();//if no movie exists this function is called
+                })
+            }
+            
+        }
+
+        function createResults(res){
+            console.log("Welcome to createResults function")
+            let resultDiv = document.createElement("div");
+
+            let elements = document.createElement("div");
+            console.log("res.title=>",res.Title);
+            elements.textContent = res.Title;
+            resultDiv.append(elements);
+            resultDiv.setAttribute("class","box");
+            return resultDiv
+        }
+
+        //function for diplaying data
+
+        function displayMovie(data){
+            console.log(data.Title)
+            console.log("Welcome to displayMovie Function");
+            const container = document.getElementById("container");
+            container.innerHTML = "";
+
+
+            var innerDiv = document.createElement("div");
+                let movieName = document.createElement("p");
+                console.log(data.Title)
+                movieName.innerHTML = data.Title;
+                movieName.setAttribute('class','h4 text-dark mt-3');
+                
+                
+                let moviePoster = document.createElement("img")
+                moviePoster.src = data.Poster;
+                moviePoster.setAttribute("class", "myImage")
+              
+                innerDiv.setAttribute("class", "column text-center  ml-5 border")
+                
+
+                let type = document.createElement("p");
+               
+                type.innerHTML = `Type: ${data.Type}`;
+                type.setAttribute('class','h6 mt-3')
+
+                let breaker = document.createElement('br');
+
+                
+                let year = document.createElement("p");
+               
+                year.innerHTML = `Year: ${data.Year}`;
+                year.setAttribute('class','h6 mt-3')
+
+                innerDiv.append(moviePoster,movieName,type,year,breaker)
+    
+                container.append(innerDiv)
+                
+
+            
+        }
+
+        function invalidMovie(){
+            let container = document.getElementById("container");
+            container.innerHTML = '';
+            let div = document.createElement('div');
+            let image = document.createElement('img')
+            image.src = "https://i2.wp.com/media2.giphy.com/media/13aEP5qHTXDwWs/giphy.gif";
+            image.style.display = "block";
+            image.setAttribute('class','myImage ml-4')
+
+            let sorryMsg = document.createElement('p');
+            sorryMsg.innerHTML="The movie you are looking for is not available."
+            sorryMsg.setAttribute('class','h6 mt-3 spec');
+            div.append(image,sorryMsg)
+            container.append(div)
+        }
+    </script>
+</body>
+</html>
